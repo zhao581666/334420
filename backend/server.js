@@ -18,9 +18,17 @@ app.use(helmet());
 
 // CORS middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL
-    : ['http://localhost:3000', 'http://localhost:5173'],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
+    // Allow all vercel.app domains and localhost
+    if (origin.endsWith('.vercel.app') ||
+        origin.includes('localhost:3000') ||
+        origin.includes('localhost:5173')) {
+      return callback(null, true);
+    }
+    return callback(null, true); // Allow all for now
+  },
   credentials: true
 }));
 
